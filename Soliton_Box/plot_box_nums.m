@@ -1,0 +1,39 @@
+% plot_box_num.m does as expected
+
+load('box_results_num.mat');
+i1 = 1:4; i2 = 5:8; i3 = 9:12;
+
+km = @(phi,z,lambda) sqrt(1/2*(lambda-2./phi(z)+...
+        sqrt(lambda./phi(z).*(4+phi(z).*lambda))));
+Aplot = [2 4 8];
+wplot = 50:10:400;
+Nplot = zeros(numel(Aplot),numel(wplot));
+for Ai = 1:length(Aplot)
+    Amax = Aplot(Ai);
+    for wi = 1:length(wplot)
+        w = wplot(wi);
+        f    = @(z) ((Amax-1)/2+1) .* ones(size(z))              + ...
+                (Amax-1)/2 .*+tanh((z-(z0-w/2))/4) .* (z<=z0) + ...
+                (Amax-1)/2 .*-tanh((z-(z0+w/2))/4) .* (z>z0);
+        % IC integration conditions
+        bmin = fzero(@(z) f(z)-(1+10^(-3)),[zmin,z0]); % z where box begins
+        bmax = fzero(@(z) f(z)-(1+10^(-3)),[z0,zmax]); % z where box ends
+        N(Ai,wi) = 1/(2*pi) *integral(@(z) km(f,z,1/2),bmin,bmax);
+    end
+end
+
+figure(1); clf; set(gcf,'Color','White');
+plot(wplot,N(1,:),'b-',...
+     widths_num(i1),N_nums(i1),'bo',...
+     wplot,N(2,:),'r-',...
+     widths_num(i2),N_nums(i2),'rs',...
+     wplot,N(3,:),'k-',...
+     widths_num(i3),N_nums(i3),'kd',...
+     'MarkerSize',12,'LineWidth',2);
+ set(gca,'FontSize',12);
+ xlabel('Box Width');
+ legend('A=1,asymp','A=1,num',...
+        'A=3,asymp','A=3,num',...
+        'A=7,asymp','A=7,num',...
+        'Location','SouthEast');
+ 
