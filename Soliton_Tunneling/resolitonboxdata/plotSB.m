@@ -1,7 +1,8 @@
 %% Plots Soliton Tunneling theory, numerics, and experiment
 close all;
     load('stdata_plot.mat');
-
+    Ttop = 4:Ttop(end);
+    Tbot = Tbot;
 % ----- plot parameters -----
 fs   = 9; %fontsize
 w    = 8.5; %cm
@@ -30,7 +31,7 @@ ytick = [2:2:6];
 	% DSWs
     h32d = errorbarxy_for_publication(SBdata.top.ampl(Ttop)*SB_top_corr,SBdata.mid.ampl(Ttop),...
                                 sqrt( (SBdata.top.amplStd(Ttop)).^2 + SB_corrstd),sqrt( (SBdata.top.amplStd(Ttop)).^2 + SB_corrstd),...
-                                SBdata.mid.amplStd(Ttop),(SBdata.mid.amplStd(Ttop)).^2,...
+                                SBdata.mid.amplStd(Ttop),(SBdata.mid.amplStd(Ttop)),...
                                       {linespecs{1}, 'k', 'k'});
            h32d.hMain.MarkerFaceColor = linespecs{1}(1);
            h32d.hMain.MarkerSize = msize;

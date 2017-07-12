@@ -1,9 +1,9 @@
 % soli_tunneling_find_solis
 % load('soli_pairs.mat','aDSW','aRW','m_minus','m_plus');
-aDSW = [5.25 6.25] - 1.75;
-aRW  = [7.25 8.53];
-m_minus = 1;
-m_plus = 1.75;
+% aDSW = [5.25 6.25] - 1.75;
+% aRW  = [7.25 8.53];
+% m_minus = 1;
+% m_plus = 1.75;
 
 ADSW = m_plus;
 debug_on = 1;

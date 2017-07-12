@@ -69,6 +69,7 @@ function [varargout]=errorbarxy_for_publication(varargin)
 %   Created by Qi An
 %   anqi2000@gmail.com
 
+%%  Updates
 %   QA 2/7/2013 initial skeleton
 %   QA 2/12/2013    Added support to plot on specified axes; Added support
 %                   to specify color of plots and errorbars; Output a
@@ -149,7 +150,7 @@ else
 end
 
 %% plot data and errorbars
-% h=plot(x,y, color{1}); % main plot
+plot(x,y, color{1}); % main plot
 allh=nan(length(x), 6); % all errorbar handles
 for k=1:length(x)
     if ~isempty(lx) & ~isempty(ly) % both errors are specified
@@ -160,6 +161,14 @@ for k=1:length(x)
         l4=line([x(k) x(k)],[ly(k) uy(k)]);
         l5=line([x(k)-0.1*errx(k) x(k)+0.1*errx(k)],[ly(k) ly(k)]);
         l6=line([x(k)-0.1*errx(k) x(k)+0.1*errx(k)],[uy(k) uy(k)]);
+%         % MM EDIT: Appears to be some sort of error in finding index of line
+%         l1ind = find(l1.Parent.Children==l1);
+%         l2ind = find(l2.Parent.Children==l2);
+%         l3ind = find(l3.Parent.Children==l3);
+%         l4ind = find(l4.Parent.Children==l4);
+%         l5ind = find(l5.Parent.Children==l5);
+%         l6ind = find(l6.Parent.Children==l6);
+%         allh(k, :)=[l1ind, l2ind, l3ind, l4ind, l5ind, l6ind];
         allh(k, :)=[l1, l2, l3, l4, l5, l6];
     elseif isempty(lx) & ~isempty(ly) % x errors are not specified
         l4=line([x(k) x(k)],[ly(k) uy(k)]);
