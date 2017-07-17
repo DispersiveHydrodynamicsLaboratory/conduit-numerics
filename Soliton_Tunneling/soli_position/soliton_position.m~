@@ -18,37 +18,54 @@ cDSW   = -uminus + sqrt(uminus^2 + 8*uplus*uminus);
 if cminus <= cDSW
     disp('Tunneling criterion is not satisfied.');
     disp('This is not going to work...');
-    input('Return to do it 
+    input('Return to do it anyways.');
 end
 
 % ODE right-hand side to be solved for the RW
 dzsdt = @(t,zs) -1+sqrt(1+4*q0*zs/t);
 
 % First part: calculate soliton position before interacting with the RW
-t1 = zminus./(3-sqrt(1+4*q0));
-z1 = 2*t1;
-% Calculate maximum possible time spent in the RW (based on initial speed)
-t2 = zminus./(2*uplus + 1 - sqrt(1+4*q0));
-if t2<t1
-    disp('Bad end time. Using t1 + 100');
-    t2 = t1+100;
-end
+    zsM = @(t) (-1+sqrt(1+4*q0))*t+zminus;
 
-% Use ODE 45 to solve the "hard part"- RW
-[tout,zsout] = ode45(@(t,zs) dzsdt(t,zs), [t1,t2], z1);
+    % Calculate where soliton catches up with RW
+    t1 = zminus./(3-sqrt(1+4*q0));
+    z1 = 2*t1;
+    
+% Second part: calculate soliton position throughout the RW
+    % Calculate maximum possible time spent in the RW (based on initial speed)
+    t2est = zminus./(2*uplus + 1 - sqrt(1+4*q0));
+    if t2est<t1
+        % Possible for this to not work
+        disp('Bad end time. Using t2 = t1 + 100');
+        t2est = t1+100;
+    end
 
-if debug_on
-    % Plot for debugging
-    figure(1); clf;
-        plot(tout,zsout);
-        if sum(imag(zsout))>0
-            hold on;
-                plot(tout,imag(zsout),'r--');
-            hold off
+    % Use ODE 45 to solve the "hard part"- RW
+    [tout,zsout] = ode45(@(t,zs) dzsdt(t,zs), [t1,t2est], z1);
+    zsRW = @(t) interp1(tout,zsout,t,'spline','extrap');
+
+    if debug_on
+        % Plot for debugging
+        figure(1); clf;
+            plot(tout,zsout);
+            if sum(imag(zsout))>0
+                hold on;
+                    plot(tout,imag(zsout),'r--');
+                hold off
+            end
+    end
+
+    % Find where this solution actually intersects leading edge of RW
+    t2 = fzero(@(t) zsRW(t)-2*uplus*t, t2est);
+        % If had to extrapolate, run ODE solver again
+        if t2>t2est
+            [tout,zsout] = ode45(@(t,zs) dzsdt(t,zs), [t1,t2], z1);
+            zsRW = @(t) interp1(tout,zsout,t,'spline',0);
         end
-end
-
-% Find where this solution actually intersects leading edge of RW
+    
+% Third part: calculate soliton position after interaction with RW
+    zsP = @(t) (-1 + sqrt(
+    
 
 
 % Combine with the "easy parts-" constant conduit
