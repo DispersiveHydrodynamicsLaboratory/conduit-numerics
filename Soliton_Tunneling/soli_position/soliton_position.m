@@ -57,9 +57,10 @@ dzsdt = @(t,zs) -1+sqrt(1+4*q0*zs/t);
 
     % Find where this solution actually intersects leading edge of RW
     t2 = fzero(@(t) zsRW(t)-2*uplus*t, t2est);
-        % If had to extrapolate, run ODE solver again
-        while t2>t2est
-            [tout,zsout] = ode45(@(t,zs) dzsdt(t,zs), [t1,t2], z1);
+        % If had to extrapolate madly, run ODE solver again
+        while (t2-t2est) > 1
+            t2est = t2+10;
+            [tout,zsout] = ode45(@(t,zs) dzsdt(t,zs), [t1,t2est], z1);
             zsRW = @(t) interp1(tout,zsout,t,'spline','extrap');
             t2 = fzero(@(t) zsRW(t)-2*uplus*t, t2est);
         end
