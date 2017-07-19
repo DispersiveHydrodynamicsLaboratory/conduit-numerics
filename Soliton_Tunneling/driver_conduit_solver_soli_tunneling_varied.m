@@ -12,8 +12,8 @@ plot_on  = 0;  % Set to 1 if you want to plot just before and just
 for hstretch = [5 2 1 0.1 0.01]                
                 
 %% Numerical Parameters
-tmax     = 125;    % Solver will run from t=0 to t=tmax
-zmax     = 700;     % Solver will solve on domain z=0 to z=zmax
+tmax     = 175;    % Solver will run from t=0 to t=tmax
+zmax     = 900;     % Solver will solve on domain z=0 to z=zmax
 numout   = round(tmax) ;           % Number of output times
 t        = linspace(0,tmax,numout);  % Desired output times
 dzinit   = 1/10; % Set to 1/500 for optimum
@@ -22,7 +22,7 @@ h        = 4;
 
 %% IC Parameters
 Am     = 2;
-asoli = 3;
+asoli = 5;
 % hstretch = 2;
 zjump = zmax/2;
 z0    = zjump - 50;

@@ -1,4 +1,4 @@
-function[zs] = soliton_position_mark_fun(uminus,aminus,zminus,uplus);
+function[zs] = soliton_position_alt_fun(uminus,aminus,zminus,uplus);
 %% Code to solve for a soliton's position 
 %  as it travels up a rarefaction wave
 debug_on = 0;
@@ -12,7 +12,7 @@ plot_on  = 0;
 
 % Calculate q0 = q(c_s(a_-,u_-),u_-) based on initial soliton amplitude and initial conduit mean
 csoli  = @(a,m) m./a.^2 .* ( (a+m).^2 .* (2*log(1+a./m)-1) + m.^2);
-q      = @(cs,m) cs*(cs+2*m)/(4*m);
+q      = @(cs,m) -4*m/(cs.^2+2*m*cs);
 q0     = q(csoli(aminus,uminus),uminus);
 
 % Ensure tunneling can happen
@@ -25,7 +25,7 @@ if cminus <= cDSW
 end
 
 % ODE right-hand side to be solved for the RW
-cs = @(q,m) -m+sqrt(m*(m+4*q0));
+cs = @(q,m) 1/q.*(-q*m - sqrt(q*m*(q*m-4)));
 
 % First part: calculate soliton position before interacting with the RW
     zsM = @(t) cs(q0,1)*t + zminus;
@@ -81,9 +81,7 @@ zs = @(t) zsM(t) .* (t<=t1)       +...
 if plot_on
     % Plot results
     figure(2); clf;
-        tplot = 0:0.01:(t2+75);
+        tplot = 0:0.01:(t2+50);
         plot(tplot,zs(tplot));
-        hold on;
-            plot(t1,z1,'b*',t2,z2,'rx');
         xlabel('t'); ylabel('z_s(t)');
 end
