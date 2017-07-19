@@ -1,13 +1,14 @@
+function[zs] = soliton_position_fun(uminus,aminus,zminus,uplus);
 %% Code to solve for a soliton's position 
 %  as it travels up a rarefaction wave
 debug_on = 0;
 plot_on  = 0;
 
-% PARAMETERS
-uminus = 1;    % Initial conduit mean
-aminus = 3;    % Initial soliton amplitude
-zminus = -50;  % Initial soliton position
-uplus  = 2; % Final conduit mean
+% % PARAMETERS
+% uminus = 1;    % Initial conduit mean
+% aminus = 3;    % Initial soliton amplitude
+% zminus = -50;  % Initial soliton position
+% uplus  = 2; % Final conduit mean
 
 % Calculate q0 = q(c_s(a_-,u_-),u_-) based on initial soliton amplitude and initial conduit mean
 csoli  = @(a,m) m./a.^2 .* ( (a+m).^2 .* (2*log(1+a./m)-1) + m.^2);

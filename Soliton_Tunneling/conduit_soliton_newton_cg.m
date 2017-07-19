@@ -4,6 +4,11 @@ function [ z,phi ] = conduit_soliton_newton_cg( amplitude, L, debug_on )
 
 debug = debug_on; % Set to 1 to see debugging information, plots, etc.
 
+if isnan(amplitude)
+    disp('Not a real soliton. Returning...');
+    z = NaN; phi = NaN;
+    return;
+end
 
 %%%%% You can change things here %%%%%%%
 % Amplitude deviation from unity (now an input for the function)

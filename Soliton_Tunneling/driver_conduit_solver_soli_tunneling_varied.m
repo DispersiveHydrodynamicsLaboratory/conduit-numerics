@@ -1,27 +1,57 @@
 % Driver script for running the conduit equation solver
 % conduit_solver.m
 
-% save_on  = 0;  % Set to nonzero if you want to run the solver, set
-%                 % to 0 if you want to plot
-% periodic = 0; % set to nonzero to run periodic solver (no BCs need)
-%               % set to 0 to run solver with time-dependent BCs      
-% check_IC = 0; % Set to 1 to only plot ICs
-% plot_on  = 1;  % Set to 1 if you want to plot just before and just
-%                 % after (possibly) calling the solver
+save_on  = 1;  % Set to nonzero if you want to run the solver, set
+                % to 0 if you want to plot
+periodic = 0; % set to nonzero to run periodic solver (no BCs need)
+              % set to 0 to run solver with time-dependent BCs      
+check_IC = 0; % Set to 1 to only plot ICs
+plot_on  = 0;  % Set to 1 if you want to plot just before and just
+                % after (possibly) calling the solver
+                
+for hstretch = [5 2 1 0.1 0.01]                
+                
+%% Numerical Parameters
+tmax     = 125;    % Solver will run from t=0 to t=tmax
+zmax     = 700;     % Solver will solve on domain z=0 to z=zmax
+numout   = round(tmax) ;           % Number of output times
+t        = linspace(0,tmax,numout);  % Desired output times
+dzinit   = 1/10; % Set to 1/500 for optimum
+Nz       = round(zmax/dzinit);
+h        = 4;                
 
-% for ind = 1%:length(aDSW)            
-%     disp(['Soliton pair: ',num2str(aDSW(ind)),' ',num2str(aRW(ind))]);
+%% IC Parameters
+Am     = 2;
+asoli = 3;
+% hstretch = 2;
+zjump = zmax/2;
+z0    = zjump - 50;
+wave_type = 'r'; % r for RW, d for DSW
+
+if periodic
+    dz       = zmax/Nz;    % Spatial  discretization
+else
+    dz       = zmax/(Nz+1);    % Spatial  discretization
+end
+
 
 %% PDE Initial and Boundary Conditions
-[f, fDSW] = soli_tunneling_IC( ADSW, aDSW(ind), aRW(ind), zmax);
-% ICs and BCs consistent with DSW generation
-    g0      = @(t) ones(size(t));
+% ICs and BCs consistent with soli-wave generation
+[f] = soli_tunneling_IC_varied( Am, asoli, zmax, hstretch, zjump, z0, wave_type);
+    if strcmp(wave_type,'d')
+        g0      = @(t) Am*ones(size(t));
+        g1      = @(t) ones(size(t)) ;  % BCs at z=zmax
+    else % wave_type = 'r'
+        g0      = @(t) ones(size(t));
+        g1      = @(t) Am*ones(size(t)) ;  % BCs at z=zmax
+    end
+    
     dg0     = @(t) zeros(size(t));  % derivative of BCs
-    g1      = @(t) ADSW*ones(size(t)) ;  % BCs at z=zmax
     dg1     = @(t) zeros(size(t));  % derivative of BCs
-    ic_type = ['soli_tunneling_RW_ADSW_',num2str(ADSW),...
-               '_aDSW_',num2str(aDSW(ind)),...
-               '_aRW_' ,num2str(aRW(ind))];
+    ic_type = ['soli_tunneling_Amax_',num2str(Am),...
+               '_asoli_',num2str(asoli),...
+               '_hstretch_',num2str(hstretch),...
+               '_wave_type_',wave_type];
 
     if periodic
         bc_type = 'periodic';
@@ -100,4 +130,5 @@ end
 % If chosen, plot data associated with the parameters and conditions above
 if plot_on
     plot_data_fun(data_dir);
+end
 end

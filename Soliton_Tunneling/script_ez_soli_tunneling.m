@@ -6,10 +6,10 @@ check_IC = 0; % Set to 1 to only plot ICs
 plot_on  = 0;  % Set to 1 if you want to plot just before and just
                 % after (possibly) calling the solver
 % load('soli_pairs.mat','aDSW','aRW','m_minus','m_plus');
-aDSW = [5.25 6.25] - 1.75;
-aRW  = [7.25 8.53];
+aDSW = NaN;
+aRW  = 3;
 m_minus = 1;
-m_plus = 1.75;
+m_plus = 2;
 if m_minus==1
     ADSW = m_plus;
 else
@@ -17,10 +17,10 @@ else
 end
 %% Numerical Parameters
 tmax     = 125;    % Solver will run from t=0 to t=tmax
-zmax     = 800;     % Solver will solve on domain z=0 to z=zmax
+zmax     = 700;     % Solver will solve on domain z=0 to z=zmax
 numout   = round(tmax) ;           % Number of output times
 t        = linspace(0,tmax,numout);  % Desired output times
-dzinit   = 1/100; % Set to 1/500 for optimum
+dzinit   = 1/10; % Set to 1/500 for optimum
 Nz       = round(zmax/dzinit);
 h        = 4;
 
@@ -31,12 +31,12 @@ else
 end
 
 for ind = 1:length(aDSW)          
-    disp(['Soliton pair: ',num2str(aDSW(ind)),' ',num2str(aRW(ind))]);
-    driver_conduit_solver_soli_tunneling_DSW;
-        if plot_on && ~save_on
-            input('r');
-        end
-%     driver_conduit_solver_soli_tunneling_RW;
+%     disp(['Soliton pair: ',num2str(aDSW(ind)),' ',num2str(aRW(ind))]);
+%     driver_conduit_solver_soli_tunneling_DSW;
+%         if plot_on && ~save_on
+%             input('r');
+%         end
+    driver_conduit_solver_soli_tunneling_RW;
 %             if plot_on && ~save_on
 %             input('r');
 %             end

@@ -5,16 +5,16 @@ save_on  = 1;  % Set to nonzero if you want to run the solver, set
                 % to 0 if you want to plot
 periodic = 1; % set to nonzero to run periodic solver (no BCs need)
               % set to 0 to run solver with time-dependent BCs                
-plot_on  = 1;  % Set to 1 if you want to plot just before and just
+plot_on  = 0;  % Set to 1 if you want to plot just before and just
                 % after (possibly) calling the solver          
-check_IC = 1; % Set to nonzero to plot the ICs and BCs without running the solver
+check_IC = 0; % Set to nonzero to plot the ICs and BCs without running the solver
 
 amaxes = 1:1:4;
 ws = 100:100:400;
 
 [AMAXES WS] = meshgrid(amaxes,ws);
 
-for ii = 1:numel(AMAXES);
+for ii = 8:numel(AMAXES);
     
     
 
@@ -27,8 +27,12 @@ zmax     = 1000*Amax;     % Solver will solve on domain z=0 to z=zmax
 z0       = zmax/2;   % Center of the box
 numout   = round(tmax);           % Number of output times
 t        = linspace(0,tmax,numout);  % Desired output times
-dzinit =  1/100; % Spatial Discretization for most accurate runs
+if ii<8
+    dzinit = 1/100;
+else
+    dzinit =  1/10; % Spatial Discretization for most accurate runs
                   % With O(h^4), 0.1 gives 10^{-3} max error over t= [0,53]
+end
 Nz       = round(zmax/dzinit);
 if periodic
     dz       = zmax/Nz;    % Spatial  discretization
@@ -38,7 +42,8 @@ end
     h        = 4   ;           % Order of method used     
 
 %% PDE Initial and Boundary Conditions
-f = @(z) ones(size(z))+Amax/2*(tanh((z-z0+w/2)/v)-tanh((z-z0-w/2)/v));
+f = @(z) Amax/2*(tanh((z-z0+w/2)/v)-tanh((z-z0-w/2)/v));
+f = @(z) ones(size(z)) + f(z) .* (f(z)>10^(-4));
 % The initial condition 
     ic_type = '';
     if periodic
@@ -48,7 +53,7 @@ f = @(z) ones(size(z))+Amax/2*(tanh((z-z0+w/2)/v)-tanh((z-z0-w/2)/v));
     end
 
 %% Create directory run will be saved to
-data_dir = ['.\MATLABdata\data\conduit_eqtn\',...
+data_dir = ['C:\Users\Michelle Maiden\Documents\MATLAB\conduit_eqtn\',...
             '_tmax_',  num2str(round(tmax)),...
             '_zmax_', num2str(round(zmax)),...
             '_Nz_',   num2str(Nz),...
