@@ -1,4 +1,4 @@
-function[zs] = soliton_position_mark_fun(uminus,aminus,zminus,uplus);
+function[zs] = soliton_position_fun(uminus,aminus,zminus,uplus);
 %% Code to solve for a soliton's position 
 %  as it travels up a rarefaction wave
 debug_on = 0;

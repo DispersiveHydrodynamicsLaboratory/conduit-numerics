@@ -5,9 +5,9 @@ plot_on  = 1;
 
 % PARAMETERS
 uminus = 1;    % Initial conduit mean
-aminus = 5;    % Initial soliton amplitude
-zminus = -50;  % Initial soliton position
-uplus  = 2; % Final conduit mean
+aminus = 3;    % Initial soliton amplitude
+zminus = -300;  % Initial soliton position
+uplus  = 1.5; % Final conduit mean
 
 % Calculate q0 = q(c_s(a_-,u_-),u_-) based on initial soliton amplitude and initial conduit mean
 csoli  = @(a,m) m./a.^2 .* ( (a+m).^2 .* (2*log(1+a./m)-1) + m.^2);

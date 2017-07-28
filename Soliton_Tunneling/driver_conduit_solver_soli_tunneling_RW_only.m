@@ -10,16 +10,16 @@ periodic = 0; % set to nonzero to run periodic solver (no BCs need)
               % set to 0 to run solver with time-dependent BCs      
 check_IC = 0; % Set to 1 to only plot ICs
 plot_on  = 0;  % Set to 1 if you want to plot just before and just
-               % after (possibly) calling the solver
+                % after (possibly) calling the solver
                 
 for hstretch = 1           
                 
 %% Numerical Parameters
-tmax     = 700;    % Solver will run from t=0 to t=tmax
-zmax     = 2500;     % Solver will solve on domain z=0 to z=zmax
+tmax     = 400;    % Solver will run from t=0 to t=tmax
+zmax     = 1200;     % Solver will solve on domain z=0 to z=zmax
 numout   = round(tmax) ;           % Number of output times
 t        = linspace(0,tmax,numout);  % Desired output times
-dzinit   = 1/4; % Set to 1/500 for optimum
+dzinit   = 1/10; % Set to 1/500 for optimum
 Nz       = round(zmax/dzinit);
 h        = 4;                
 
@@ -27,8 +27,8 @@ h        = 4;
 Am     = 1.5;
 asoli  = 3;
 % hstretch = 2;
-zjump = 350;
-z0    = zjump - 300;
+zjump = 200;
+z0    = zjump - 150;
 wave_type = 'r'; % r for RW, d for DSW
 
 if periodic
@@ -40,7 +40,7 @@ end
 
 %% PDE Initial and Boundary Conditions
 % ICs and BCs consistent with soli-wave generation
-[f] = soli_tunneling_IC_varied( Am, asoli, zmax, hstretch, zjump, z0, wave_type);
+[f] = soli_tunneling_IC_RW( Am, asoli, zmax, hstretch, zjump, z0, wave_type);
     if strcmp(wave_type,'d')
         g0      = @(t) Am*ones(size(t));
         g1      = @(t) ones(size(t)) ;  % BCs at z=zmax
@@ -51,8 +51,7 @@ end
     
     dg0     = @(t) zeros(size(t));  % derivative of BCs
     dg1     = @(t) zeros(size(t));  % derivative of BCs
-    ic_type = ['soli_tunneling_Amax_',num2str(Am),...
-               '_asoli_',num2str(asoli),...
+    ic_type = ['RW_Amax_',num2str(Am),...'_asoli_',num2str(asoli),...
                '_hstretch_',num2str(hstretch),...
                '_wave_type_',wave_type];
 
@@ -122,8 +121,7 @@ if save_on
         conduit_solver_periodic( t, zmax, Nz, h, f, data_dir );      
     else    
     % Save parameters
-%         save(savefile,'t','Nz','dz','zmax','g0','dg0','g1','dg1','f','periodic');
-    save(savefile);
+        save(savefile,'t','Nz','dz','zmax','g0','dg0','g1','dg1','f','periodic');
     % Run timestepper
         conduit_solver( t, zmax, Nz, h, g0, dg0, g1, dg1, f, data_dir );
     end
