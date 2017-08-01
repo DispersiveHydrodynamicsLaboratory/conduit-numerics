@@ -14,7 +14,7 @@ ws = 100:100:400;
 
 [AMAXES WS] = meshgrid(amaxes,ws);
 
-for ii = 8:numel(AMAXES);
+for ii = 14:numel(AMAXES);
     
     
 
@@ -23,16 +23,14 @@ Amax     = AMAXES(ii);     % Height of the box
 w        = WS(ii);   % Width of the box
 v        = 5*Amax;     % Edges of the box (how smooth the edges are) Possible Radiation Reducer
 tmax     = 500;    % Solver will run from t=0 to t=tmax
-zmax     = 1000*Amax;     % Solver will solve on domain z=0 to z=zmax
+zmax     = 500*Amax;     % Solver will solve on domain z=0 to z=zmax
 z0       = zmax/2;   % Center of the box
 numout   = round(tmax);           % Number of output times
 t        = linspace(0,tmax,numout);  % Desired output times
-if ii<8
-    dzinit = 1/100;
-else
-    dzinit =  1/10; % Spatial Discretization for most accurate runs
+
+    dzinit =  1/3; % Spatial Discretization for most accurate runs
                   % With O(h^4), 0.1 gives 10^{-3} max error over t= [0,53]
-end
+
 Nz       = round(zmax/dzinit);
 if periodic
     dz       = zmax/Nz;    % Spatial  discretization
@@ -53,7 +51,7 @@ f = @(z) ones(size(z)) + f(z) .* (f(z)>10^(-4));
     end
 
 %% Create directory run will be saved to
-data_dir = ['C:\Users\Michelle Maiden\Documents\MATLAB\conduit_eqtn\',...
+data_dir = ['/Volumes/APPM-DHL/data/conduit_eqtn/',...
             '_tmax_',  num2str(round(tmax)),...
             '_zmax_', num2str(round(zmax)),...
             '_Nz_',   num2str(Nz),...

@@ -1,7 +1,7 @@
 % Computes theoretical soliton trajectory through a rarefaction wave
 % Requires soliton_position_fun.m to run
 
-uminus = 1;
+uminus = 1; % I think current version requires uminus=1
 asoli  = 5;
 zminus = 50; % RW starts at 0, soliton starts at -zminus
 uplus  = 2;
