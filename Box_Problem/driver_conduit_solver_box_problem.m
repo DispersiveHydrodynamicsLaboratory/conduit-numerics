@@ -1,11 +1,11 @@
 % Driver script for running the conduit equation solver
 % conduit_solver.m
 % Edited on 2017/07/12 by MM & NF
-save_on  = 1;  % Set to nonzero if you want to run the solver, set
+save_on  = 0;  % Set to nonzero if you want to run the solver, set
                 % to 0 if you want to plot
 periodic = 1; % set to nonzero to run periodic solver (no BCs need)
               % set to 0 to run solver with time-dependent BCs                
-plot_on  = 0;  % Set to 1 if you want to plot just before and just
+plot_on  = 1;  % Set to 1 if you want to plot just before and just
                 % after (possibly) calling the solver          
 check_IC = 0; % Set to nonzero to plot the ICs and BCs without running the solver
 
@@ -14,7 +14,7 @@ ws = 100:100:400;
 
 [AMAXES WS] = meshgrid(amaxes,ws);
 
-for ii = 14:numel(AMAXES);
+for ii = 1:numel(AMAXES);
     
     
 
@@ -23,14 +23,19 @@ Amax     = AMAXES(ii);     % Height of the box
 w        = WS(ii);   % Width of the box
 v        = 5*Amax;     % Edges of the box (how smooth the edges are) Possible Radiation Reducer
 tmax     = 500;    % Solver will run from t=0 to t=tmax
-zmax     = 500*Amax;     % Solver will solve on domain z=0 to z=zmax
-z0       = zmax/2;   % Center of the box
+% zmax     = 500*Amax;     % Solver will solve on domain z=0 to z=zmax
+
 numout   = round(tmax);           % Number of output times
 t        = linspace(0,tmax,numout);  % Desired output times
-
-    dzinit =  1/3; % Spatial Discretization for most accurate runs
-                  % With O(h^4), 0.1 gives 10^{-3} max error over t= [0,53]
-
+    if ii >=13
+        zmax = 500*Amax;
+        dzinit = 1/3;
+    else
+        zmax     = 1000*Amax;     % Solver will solve on domain z=0 to z=zmax
+        dzinit =  1/10; % Spatial Discretization for most accurate runs
+                      % With O(h^4), 0.1 gives 10^{-3} max error over t= [0,53]
+    end
+z0       = zmax/2;   % Center of the box
 Nz       = round(zmax/dzinit);
 if periodic
     dz       = zmax/Nz;    % Spatial  discretization
@@ -125,50 +130,52 @@ end
 
 %% If chosen, plot data associated with the parameters and conditions above
 if plot_on
-    disp('Calculating maximum time increment in saved data files...');
-    for ii=1:length(t)+1
-        [fid,foo] = fopen(strcat(data_dir,num2str(ii,'%05d.mat')),'r');
-        if fid == -1 % File does not exist
-            tm = ii-1;
-            disp(['Maximum time = ',num2str(t(tm))]);
-            break;
-        end
-        fclose(fid);
-    end
-    if ii == length(t)
-        disp(['Maximum time = ',num2str(t(tm))]);
-    end
-    % Get rid of larger t values
-    t = t(1:tm);
-    if periodic
-        zplot  = dz:dz:zmax;
-    else
-        zplot  = dz:dz:zmax-dz;
-    end
-    A_full = zeros(length(t)-1,length(zplot));
-    % Load first time step
-    load(strcat(data_dir,num2str(0,'%05d')),'A_init');
-        fontsize = 12;
-        fig=figure(2); clf;
-        plot(zplot,A_init);
-        qaxis = axis;
-        title(['Time: ',num2str(t(1))]);
-        set(gca,'fontsize',fontsize,'fontname','times');
-        drawnow
-%         input('Return');
-    %Plot subsequent time steps
-    for tind=2:tm
-        load(strcat(data_dir,num2str(tind,'%05d')),'A','tnow');
-        fontsize = 12;
-        fig=figure(2); clf;
-        plot(zplot,A);
-        A_full(tind-1,:) = A;
-        axis(qaxis)
-        hold off;
-        title(['Time: ',num2str(tnow)]);
-        set(gca,'fontsize',fontsize,'fontname','times');
-        drawnow;
-    end
+    plot_data_fun(data_dir);
+    input('R');
+%     disp('Calculating maximum time increment in saved data files...');
+%     for ii=1:length(t)+1
+%         [fid,foo] = fopen(strcat(data_dir,num2str(ii,'%05d.mat')),'r');
+%         if fid == -1 % File does not exist
+%             tm = ii-1;
+%             disp(['Maximum time = ',num2str(t(tm))]);
+%             break;
+%         end
+%         fclose(fid);
+%     end
+%     if ii == length(t)
+%         disp(['Maximum time = ',num2str(t(tm))]);
+%     end
+%     % Get rid of larger t values
+%     t = t(1:tm);
+%     if periodic
+%         zplot  = dz:dz:zmax;
+%     else
+%         zplot  = dz:dz:zmax-dz;
+%     end
+%     A_full = zeros(length(t)-1,length(zplot));
+%     % Load first time step
+%     load(strcat(data_dir,num2str(0,'%05d')),'A_init');
+%         fontsize = 12;
+%         fig=figure(2); clf;
+%         plot(zplot,A_init);
+%         qaxis = axis;
+%         title(['Time: ',num2str(t(1))]);
+%         set(gca,'fontsize',fontsize,'fontname','times');
+%         drawnow
+% %         input('Return');
+%     %Plot subsequent time steps
+%     for tind=2:tm
+%         load(strcat(data_dir,num2str(tind,'%05d')),'A','tnow');
+%         fontsize = 12;
+%         fig=figure(2); clf;
+%         plot(zplot,A);
+%         A_full(tind-1,:) = A;
+%         axis(qaxis)
+%         hold off;
+%         title(['Time: ',num2str(tnow)]);
+%         set(gca,'fontsize',fontsize,'fontname','times');
+%         drawnow;
+%     end
 
 end
 end
