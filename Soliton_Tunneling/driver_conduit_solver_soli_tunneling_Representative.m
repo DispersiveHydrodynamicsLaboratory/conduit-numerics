@@ -11,8 +11,7 @@ periodic = 0; % set to nonzero to run periodic solver (no BCs need)
 check_IC = 0; % Set to 1 to only plot ICs
 plot_on  = 0;  % Set to 1 if you want to plot just before and just
                % after (possibly) calling the solver
-                          
-for asoli = [7]                
+                                
 %% Numerical Parameters
 tmax     = 400;    % Solver will run from t=0 to t=tmax
 zmax     = 2000;     % Solver will solve on domain z=0 to z=zmax
@@ -24,7 +23,7 @@ h        = 4;
 
 %% IC Parameters
 Am     = 2;
-% asoli  = 3;
+asoli  = 7;
 hstretch = 5;
 zjump = 200;
 z0    = zjump - 75;

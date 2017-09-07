@@ -11,7 +11,6 @@ function[zs,tmax] = soliton_position_fun(uminus,aminus,zminus,uplus);
 %  as it travels up a rarefaction wave
 debug_on = 0;
 plot_on  = 0;
-zminus = -zminus;  % Initial soliton position
 
 
 % Calculate q0 = q(c_s(a_-,u_-),u_-) based on initial soliton amplitude and initial conduit mean
@@ -47,8 +46,8 @@ if ~trapped
     t2est = zminus/(2*uplus-cs(q0,1));
     if t2est<t1
         % Possible for this to not work
-        disp('Initial guess: tunneling ends at t2 = t1 + 100');
-        t2est = t1+100;
+        disp('Initial guess: tunneling ends at t2 = t1 + 250');
+        t2est = t1+250;
     else
         disp(['Initial guess: tunneling ends at t2 = ',num2str(round(t2est))]);
     end
@@ -64,7 +63,7 @@ end
     if debug_on
         % Plot for debugging
         figure(1); clf;
-            plot(tout,zsout);
+            plot(tout,real(zsout));
             if sum(imag(zsout))>0
                 hold on;
                     plot(tout,imag(zsout),'r--');
@@ -74,12 +73,16 @@ end
     if ~trapped
         % Find where this solution actually intersects leading edge of RW
         t2 = fzero(@(t) zsRW(t)-2*uplus*t, t2est);
+        t2ctr = 0;
             % If had to extrapolate madly, run ODE solver again
-            while (t2-t2est) > 1
+            while (t2-t2est) > 1 & t2ctr < 100
                 t2est = t2+10;
                 [tout,zsout] = ode45(@(t,zs) cs(q0,zs/(2*t)), [t1,t2est], z1);
-                zsRW = @(t) interp1(tout,zsout,t,'spline','extrap');
+                    binds = find(isnan(zsout));
+                    ginds = setdiff(1:length(zsout),binds);
+                zsRW = @(t) interp1(tout(ginds),zsout(ginds),t,'spline','extrap');
                 t2 = fzero(@(t) zsRW(t)-2*uplus*t, t2est);
+                t2ctr = t2ctr + 1;
             end
             zsRW = @(t) interp1(tout,zsout,t,'spline',0);
             z2 = 2*uplus*t2;

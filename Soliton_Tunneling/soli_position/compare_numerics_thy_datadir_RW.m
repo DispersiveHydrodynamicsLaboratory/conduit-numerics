@@ -1,19 +1,25 @@
 % Compare theory to exp't
 reformat_on = 1; %reformat numerics into matrix; only needs to be done once per trial
-wave_type = 'd';
+wave_type = 'r';
+trapping  = 1;
 % Plotting parameters
-wplot = 8.5*1;
-hplot = 5.25*1;
+wfac  = 2;
+wplot = 8.5*wfac;
+hplot = 5.25*wfac;
 
 % data_dir = '/Volumes/APPM-DHL/data/conduit_eqtn/_tmax_200_zmax_600_Nz_6000_order_4_init_condns_soli_tunneling_Amax_1.5_asoli_3_hstretch_2_wave_type_r_bndry_condns_time_dependent/';
 % data_dir = '/Volumes/APPM-DHL/data/conduit_eqtn/_tmax_400_zmax_1200_Nz_12000_order_4_init_condns_soli_tunneling_Amax_1.5_asoli_3_hstretch_2_wave_type_r_bndry_condns_time_dependent/';
 % data_dir = '/Volumes/APPM-DHL/data/conduit_eqtn/_tmax_400_zmax_1200_Nz_12000_order_4_init_condns_soli_tunneling_Amax_1.5_asoli_3_hstretch_2_wave_type_r_bndry_condns_time_dependent/';
 % data_dirRW = '/Volumes/APPM-DHL/data/conduit_eqtn/_tmax_400_zmax_1200_Nz_12000_order_4_init_condns_RW_Amax_1.5_hstretch_1_wave_type_r_bndry_condns_time_dependent/';
 % data_dir = '/Volumes/APPM-DHL/data/conduit_eqtn/_tmax_700_zmax_2500_Nz_10000_order_4_init_condns_soli_tunneling_Amax_1.5_asoli_3_hstretch_1_wave_type_r_bndry_condns_time_dependent/';
-data_dir = '/Volumes/APPM-DHL/data/conduit_eqtn/_tmax_250_zmax_1000_Nz_4000_order_4_init_condns_soli_tunneling_Amax_2_asoli_2_hstretch_5_wave_type_d_bndry_condns_time_dependent/';
+if trapping
+    data_dir = '/Volumes/APPM-DHL/data/conduit_eqtn/_tmax_250_zmax_1000_Nz_4000_order_4_init_condns_soli_tunneling_Amax_2_asoli_2_hstretch_5_wave_type_r_bndry_condns_time_dependent/';
+else
+    data_dir = '/Volumes/APPM-DHL/data/conduit_eqtn/_tmax_400_zmax_2000_Nz_8000_order_4_init_condns_soli_tunneling_Amax_2_asoli_7_hstretch_5_wave_type_r_trapping_bndry_condns_time_dependent/';
+end
 
 
-load([data_dir,'parameters.mat']);
+load([data_dir,'parameters.mat'],'zjump','z0','Am','hstretch','t','zmax','dz','Nz','asoli');
 hstretches = hstretch;
 zminus = -(zjump - z0);
 uplus = Am;
@@ -46,22 +52,12 @@ else
     load([data_dir,'matrix.mat'],'A_full','t','zplot');
 end
 
-
-if strcmp(wave_type,'r')
     % Calculate theoretical soliton trajectory
     [zs] = soliton_position_fun(1,asoli,zminus,Am);
-else
-    % Use phase shift theory to find trajectory
-    csoli  = @(a,m) m./a.^2 .* ( (a+m).^2 .* (2*log(1+a./m)-1) + m.^2);
-    [krat, newc] = ST_phase_shifts(Am, 1, csoli(asoli,Am));
-    ps     = zminus*(1-krat);
-    zs     = @(t) (csoli(asoli,Am)*t + zminus) .*(t<20) + ...
-                  (newc*t            + zminus - ps) .*(t>60);
-end
 
 [foo,zm] = min(abs(max(zplot)-(zs(t)-zminus+z0)));
 f1 = figure(1); clf;
-    contourf(zplot(1:25:end),t,A_full(:,1:25:end),100,'edgecolor','none');
+    contourf(zplot,t,A_full,100,'edgecolor','none');
         cmap = load('CoolWarmFloat257.csv');
         colormap(cmap); 
         xlabel('z'); ylabel('t'); colorbar;
@@ -72,7 +68,11 @@ f1 = figure(1); clf;
         input('r');
     end
     set(gca,'FontSize',9)
-savePlot(f1,'soli_RW_contour',wplot,hplot,'-dpdf','');
+    if trapping
+        savePlot(f1,'soli_RW_contour_trapping',wplot,hplot,'-dpdf','');
+    else
+        savePlot(f1,'soli_RW_contour_tunneling',wplot,hplot,'-dpdf','');
+    end
 return;
 % Compare RW to theoretical and numerical options
 %     % Pick random time step in the middle

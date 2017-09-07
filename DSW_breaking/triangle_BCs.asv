@@ -1,0 +1,25 @@
+function [ g0, dg0 ] = triangle_BCs( zb, Ab, toff, tmax )
+%triangle_BCs generates boundary conditions 
+%   that result in a triangle wave in the conduit
+%   of maximum height Ab and width zb
+%   toff is the amount of time (ND) before starting 
+%   the ramping up in the profile
+%   tmax is time profile is allowed to run
+t1 = (Ab-1)/(2*Ab)*zb;
+t2 = zb/2;
+ g0 = @(t) ones(size(t))  .*  (t<=0 | t>=t2) + ...
+           1./(1 - 2*t./zb - 1./(Ab - 1)) .* (t>0 & t<t1) + ...
+           1./(1-2*t/zb)  .*  (t>t1 & t<t2) ;
+dg0 = @(t) zeros(size(t)) + ...
+           (2/zb)./( (Ab-2)/(Ab-1) - (2*t)/zb ).^2 .* (t>0 & t<t1) + ...
+           (2/zb)./(1-2*t/zb).^2 .* (t>t1 & t<t2) ;
+ g0 = @(t) g0(t-toff);
+dg0 = @(t) dg0(t-toff);
+          
+%% Spline interpolant version
+ tvec = 0:10^-6:tmax;
+g0vec = g0(tvec);
+csg0  = csapi(tvec,
+
+end
+

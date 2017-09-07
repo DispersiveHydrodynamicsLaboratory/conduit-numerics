@@ -3,7 +3,7 @@
 
 %% MAJOR EDIT: parameters file includes ALL parameters
 %% makes processing easier
-
+rip; %To ensure figures aren't being saved as well
 save_on  = 1;  % Set to nonzero if you want to run the solver, set
                 % to 0 if you want to plot
 periodic = 0; % set to nonzero to run periodic solver (no BCs need)
@@ -12,10 +12,10 @@ check_IC = 0; % Set to 1 to only plot ICs
 plot_on  = 0;  % Set to 1 if you want to plot just before and just
                % after (possibly) calling the solver
                           
-for asoli = [7]                
+for asoli = [1.5]                
 %% Numerical Parameters
-tmax     = 400;    % Solver will run from t=0 to t=tmax
-zmax     = 2000;     % Solver will solve on domain z=0 to z=zmax
+tmax     = 500;    % Solver will run from t=0 to t=tmax
+zmax     = 1500;     % Solver will solve on domain z=0 to z=zmax
 numout   = round(tmax) ;           % Number of output times
 t        = linspace(0,tmax,numout);  % Desired output times
 dzinit   = 1/4; % Set to 1/500 for optimum
@@ -26,9 +26,9 @@ h        = 4;
 Am     = 2;
 % asoli  = 3;
 hstretch = 5;
-zjump = 200;
-z0    = zjump - 75;
-wave_type = 'r'; % r for RW, d for DSW
+zjump = 100;
+z0    = zjump + 50;
+wave_type = 'd'; % r for RW, d for DSW
 
 if periodic
     dz       = zmax/Nz;    % Spatial  discretization
@@ -39,7 +39,7 @@ end
 
 %% PDE Initial and Boundary Conditions
 % ICs and BCs consistent with soli-wave generation
-[f] = soli_tunneling_IC_varied( Am, asoli, zmax, hstretch, zjump, z0, wave_type);
+[f] = soli_tunneling_IC_trapping( Am, asoli, zmax, hstretch, zjump, z0, wave_type);
     if strcmp(wave_type,'d')
         g0      = @(t) Am*ones(size(t));
         g1      = @(t) ones(size(t)) ;  % BCs at z=zmax

@@ -1,69 +1,42 @@
 % Driver script for running the conduit equation solver
 % conduit_solver.m
-
-%% MAJOR EDIT: parameters file includes ALL parameters
-%% makes processing easier
-
 save_on  = 1;  % Set to nonzero if you want to run the solver, set
                 % to 0 if you want to plot
 periodic = 0; % set to nonzero to run periodic solver (no BCs need)
-              % set to 0 to run solver with time-dependent BCs      
-check_IC = 0; % Set to 1 to only plot ICs
-plot_on  = 0;  % Set to 1 if you want to plot just before and just
-               % after (possibly) calling the solver
-                          
-for asoli = [7]                
+              % set to 0 to run solver with time-dependent BCs                
+plot_on  = 1;  % Set to 1 if you want to plot just before and just
+                % after (possibly) calling the solver          
+check_IC = 1; % Set to nonzero to plot the ICs and BCs without running the solver
+
 %% Numerical Parameters
-tmax     = 400;    % Solver will run from t=0 to t=tmax
-zmax     = 2000;     % Solver will solve on domain z=0 to z=zmax
-numout   = round(tmax) ;           % Number of output times
+tmax     = 100;    % Solver will run from t=0 to t=tmax
+zmax     = 1000;     % Solver will solve on domain z=0 to z=zmax
+numout   = round(tmax);           % Number of output times
 t        = linspace(0,tmax,numout);  % Desired output times
-dzinit   = 1/4; % Set to 1/500 for optimum
+dzinit =  1/10; % Spatial Discretization for most accurate runs
+                  % With O(h^4), 0.1 gives 10^{-3} max error over t= [0,53]
 Nz       = round(zmax/dzinit);
-h        = 4;                
-
-%% IC Parameters
-Am     = 2;
-% asoli  = 3;
-hstretch = 5;
-zjump = 200;
-z0    = zjump - 75;
-wave_type = 'r'; % r for RW, d for DSW
-
 if periodic
     dz       = zmax/Nz;    % Spatial  discretization
 else
     dz       = zmax/(Nz+1);    % Spatial  discretization
 end
-
+    h        = 2   ;           % Order of method used     
 
 %% PDE Initial and Boundary Conditions
-% ICs and BCs consistent with soli-wave generation
-[f] = soli_tunneling_IC_varied( Am, asoli, zmax, hstretch, zjump, z0, wave_type);
-    if strcmp(wave_type,'d')
-        g0      = @(t) Am*ones(size(t));
-        g1      = @(t) ones(size(t)) ;  % BCs at z=zmax
-    else % wave_type = 'r'
-        g0      = @(t) ones(size(t));
-        g1      = @(t) Am*ones(size(t)) ;  % BCs at z=zmax
-    end
-    
-    dg0     = @(t) zeros(size(t));  % derivative of BCs
-    dg1     = @(t) zeros(size(t));  % derivative of BCs
-    ic_type = ['soli_tunneling_Amax_',num2str(Am),...
-               '_asoli_',num2str(asoli),...
-               '_hstretch_',num2str(hstretch),...
-               '_wave_type_',wave_type,'_trapping'];
-
+f = @(z) ones(size(z));
+[ g0, dg0 ] = triangle_BCs(10,3,0,tmax);
+ g1 = @(t) ones(size(t));
+dg1 = @(t) zeros(size(t));
+    ic_type = '';
     if periodic
         bc_type = 'periodic';
     else
         bc_type = 'time_dependent';
     end
-   
 
 %% Create directory run will be saved to
-data_dir = ['/Volumes/APPM-DHL/data/conduit_eqtn/',...
+data_dir = ['/Volumes/Data Storage/Numerics/conduit_eqtn/',...
             '_tmax_',  num2str(round(tmax)),...
             '_zmax_', num2str(round(zmax)),...
             '_Nz_',   num2str(Nz),...
@@ -84,7 +57,7 @@ savefile = sprintf('%sparameters.mat',data_dir);
 %% If chosen, run the solver using the parameters and conditions above
 if save_on
     % Load initial data
-      zplot  = dz*[1:Nz]';
+      zplot  = dz*[1:Nz];
       tplot  = linspace(0,tmax,floor(tmax*10));
       A_init = f(zplot);
     if plot_on
@@ -109,30 +82,72 @@ if save_on
         set(gca,'fontsize',fontsize,'fontname','times');
         pause(0.25);
         if check_IC
+            legend(ic_type);
+            drawnow; 
             return;
         end
     end
     
     if periodic
     % Save parameters
-%         save(savefile,'t','Nz','dz','zmax','f','periodic');
-    save(savefile);
+        save(savefile,'t','Nz','dz','zmax','f','periodic');
     % Run timestepper
         conduit_solver_periodic( t, zmax, Nz, h, f, data_dir );      
     else    
     % Save parameters
-%         save(savefile,'t','Nz','dz','zmax','g0','dg0','g1','dg1','f','periodic');
-    save(savefile);
+        save(savefile,'t','Nz','dz','zmax','g0','dg0','g1','dg1','f','periodic');
     % Run timestepper
         conduit_solver( t, zmax, Nz, h, g0, dg0, g1, dg1, f, data_dir );
     end
 else
     load(savefile);
 end
-% end
 
-% If chosen, plot data associated with the parameters and conditions above
+%% If chosen, plot data associated with the parameters and conditions above
 if plot_on
-    plot_data_fun(data_dir);
-end
+    disp('Calculating maximum time increment in saved data files...');
+    for ii=1:length(t)+1
+        [fid,foo] = fopen(strcat(data_dir,num2str(ii,'%05d.mat')),'r');
+        if fid == -1 % File does not exist
+            tm = ii-1;
+            disp(['Maximum time = ',num2str(t(tm))]);
+            break;
+        end
+        fclose(fid);
+    end
+    if ii == length(t)
+        disp(['Maximum time = ',num2str(t(tm))]);
+    end
+    % Get rid of larger t values
+    t = t(1:tm);
+    if periodic
+        zplot  = dz:dz:zmax;
+    else
+        zplot  = dz:dz:zmax-dz;
+    end
+    A_full = zeros(length(t)-1,length(zplot));
+    % Load first time step
+    load(strcat(data_dir,num2str(0,'%05d')),'A_init');
+        fontsize = 12;
+        fig=figure(2); clf;
+        plot(zplot,A_init);
+        qaxis = axis;
+        title(['Time: ',num2str(t(1))]);
+        set(gca,'fontsize',fontsize,'fontname','times');
+        drawnow
+%         input('Return');
+    %Plot subsequent time steps
+    for tind=2:tm
+        load(strcat(data_dir,num2str(tind,'%05d')),'A','tnow');
+        fontsize = 12;
+        fig=figure(2); clf;
+        plot(zplot,A);
+        A_full(tind-1,:) = A;
+        axis(qaxis)
+        hold off;
+        title(['Time: ',num2str(tnow)]);
+        set(gca,'fontsize',fontsize,'fontname','times');
+        drawnow;
+    end
+
 end

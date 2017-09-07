@@ -33,4 +33,5 @@ set(fh,'PaperUnits','centimeters',...
  
 % Print figure
 print(fh,[datadir,'/',filename],fspec,res)
+% save2pdf([datadir,'/',filename],fh,600)
 end
