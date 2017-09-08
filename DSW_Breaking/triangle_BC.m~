@@ -1,0 +1,43 @@
+% function [ g0, dg0 ] = triangle_BC( Ab, zb, toff, tmax )
+%UNTITLED2 Summary of this function goes here
+%   Detailed explanation goes here
+
+    zb = 10;
+    Ab = 2;
+%     zb = 10;
+
+    t1 = zb*(Ab - 1)/(2*Ab);
+    m  = -(Ab - 1)/zb;
+    t2 = zb/2;
+    
+
+     g0 = @(t) ones(size(t))                      .* (t<=0 | t>= t2) + ...
+               1./( 1 - 2*(t)/zb )                .* (t>0  & t<t1) +...
+               Ab*ones(size(t))                   .* (t==t1) +...
+               -1./( (Ab - 2)/(Ab - 1) - 2*t/zb ) .* (t>t1 & t<t2); 
+               
+    dg0 = @(t) zeros(size(t))                            .* (t<=0 | t>= t2 | t==t1) + ...
+               (2/zb)./( 1 - 2*t/zb ).^2                 .* (t>0  & t<t1) +...
+               -(2/zb)./( (Ab - 2)/(Ab - 1) - 2*t/zb ).^2 .* (t>t1 & t<t2);
+
+    tvec = -zb/2:0.01:zb;
+    figure(1); clf; 
+    subplot(2,1,1);
+        plot(tvec,g0(tvec),'k-'); title(zb); 
+        axis([-zb/2 max(tvec) min(g0(tvec))-0.25 max(g0(tvec))+0.25])
+        hold on;
+            plot(t1*ones(1,2),[min(g0(tvec))-0.25 max(g0(tvec))+0.25],'r--',...
+                 t2*ones(1,2),[min(g0(tvec))-0.25 max(g0(tvec))+0.25],'b--');
+        hold off;
+    subplot(2,1,2);
+        plot(tvec,dg0(tvec),'k-');
+        axis([-zb/2 max(tvec) min(dg0(tvec))-0.25 max(dg0(tvec))+0.25])
+        hold on;
+            plot(t1*ones(1,2),[min(dg0(tvec))-0.25 max(g0(tvec))+0.25],'r--',...
+                 t2*ones(1,2),[min(dg0(tvec))-0.25 max(dg0(tvec))+0.25],'b--');
+        hold off;
+	drawnow;
+%     input('r');
+
+% end
+
