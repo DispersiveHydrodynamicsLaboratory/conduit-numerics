@@ -1,4 +1,4 @@
-function [ g0, dg0 ] = triangle_BC( Ab, zb, toff, tmax )
+function [ g0, dg0 ] = triangle_BC_smooth( Ab, zb, toff, tmax )
 %triangle_BCs generates boundary conditions 
 %   that result in a triangle wave in the conduit
 %   of maximum height Ab and width zb
@@ -11,6 +11,7 @@ function [ g0, dg0 ] = triangle_BC( Ab, zb, toff, tmax )
     m  = -(Ab - 1)/zb;
     t2 = zb/2;
     tm = -1/(2*m);
+    cap = 0.25;
     
     if t2>tm
         disp('Breaking occurs before profile finished');
@@ -18,15 +19,18 @@ function [ g0, dg0 ] = triangle_BC( Ab, zb, toff, tmax )
     
 
      g0 = @(t) ones(size((t-toff)))                      .* ((t-toff)<=0 | (t-toff)>= t2) + ...
-               1./( 1 - 2*((t-toff))/zb )                .* ((t-toff)>0  & (t-toff)<t1) +...
-               Ab*ones(size((t-toff)))                   .* ((t-toff)==t1) +...
-               (zb*m+Ab)./(1+zb*m-2*(t-toff)*m) .* ((t-toff)>t1 & (t-toff)<t2); 
+               1./( 1 - 2*((t-toff))/zb )                .* ((t-toff)>0  & (t-toff)<t1-cap) +...
+               Ab*ones(size((t-toff)))                   .* (abs(t-toff-t1)<=cap) +...
+               (zb*m+Ab)./(1+zb*m-2*(t-toff)*m) .* ((t-toff)>t1+cap & (t-toff)<t2); 
                
-    dg0 = @(t) zeros(size((t-toff)))                            .* ((t-toff)<=0 | (t-toff)>= t2 | (t-toff)==t1) + ...
-               (2/zb)./( 1 - 2*(t-toff)/zb ).^2                 .* ((t-toff)>0  & (t-toff)<t1) +...
-               (-2*m)*(zb*m+Ab)./(1+zb*m-2*(t-toff)*m).^2 .* ((t-toff)>t1 & (t-toff)<t2);
+    dg0 = @(t) zeros(size((t-toff)))                            .* ((t-toff)<=0 | (t-toff)>= t2 | abs(t-toff-t1)<=cap) + ...
+               (2/zb)./( 1 - 2*(t-toff)/zb ).^2                 .* ((t-toff)>0  & (t-toff)<t1-cap) +...
+               (-2*m)*(zb*m+Ab)./(1+zb*m-2*(t-toff)*m).^2 .* ((t-toff)>t1+cap & (t-toff)<t2);
 
-    tvec = -zb/2:0.01:zb;
+%     tvec = -zb/2:0.01:zb;
+%      g0vec =  g0fun(tvec);
+%     dg0vec = dg0fun(tvec);
+
     
     if 0
         figure(1); clf; 
