@@ -5,12 +5,19 @@ if nargin>1
     nplts = varargin{1};
     if nargin>2
         tmax = varargin{2};
+        if nargin > 3
+            tmin = varargin{3};
+        else
+            tmin = 0;
+        end
     else
         tmax = Inf;
+        tmin = 0;
     end
 else
     nplts = 6;
     tmax  = Inf;
+    tmin  = 0;
 end
 
 % Find maximum t index
@@ -25,7 +32,10 @@ for ii=1:length(t)-1
   fclose(fid);
 end
 
-t = t(1:min(tind,tmax));
+tmaxind = find(t<=tmax,1,'last');
+tminind = find(t>=tmin,1,'first');
+
+t = t(1:min(tind,tmaxind));
 
 % Plotting stuff
 plot_figs = [1   % Time sequence of n plots
@@ -41,7 +51,11 @@ zp = zmini:zmaxi;
 
 if plot_figs(1)
     %toutind = 1:6;
-    toutind = round(linspace(round((length(t)-1)/(nplts-1)),length(t)-1,nplts-1));
+    if nplts ~= 1
+        toutind = round(linspace(max(1,tminind),length(t)-1,nplts-1)); %linspace(round((length(t)-1)/(nplts-1))
+    else
+        toutind = tminind;
+    end
     % Find max and min of solution to plot
     if exist('f','var')
         Amax = max(f(z(zp)));
@@ -51,7 +65,7 @@ if plot_figs(1)
         Amax = max(A_init); %max(f(z(zp)));
         Amin = min(A_init); %min(f(z(zp)));
     end
-    for ii=1:nplts-1
+    for ii=1:max(nplts-1,1)
         load(strcat(loaddir,num2str(toutind(ii),'%05d'),'.mat'),'A','tnow','inc');
         if max(A) > Amax
             Amax = max(A);
@@ -71,9 +85,13 @@ if plot_figs(1)
     ylabel('$A$','interpreter','latex');
     axis([z(zmini),z(zmaxi),Amin-0.2,Amax+0.2]);
     title({['$t = 0$']},'interpreter','latex');
-    for ii=1:nplts-1
+    for ii=1:max(nplts-1,1)
         load(strcat(loaddir,num2str(toutind(ii),'%05d'),'.mat'),'A','tnow','inc');
-        h(ii+1) = subplot(nplts,1,ii+1);
+        if nplts ~= 1
+            h(ii+1) = subplot(nplts,1,ii+1);
+        else
+            h(1) = subplot(1,1,1);
+        end
         plot(z(zp),A(zp),'b-');
         set(gca,'fontsize',fontsize,'fontname','times');
         ylabel('$A$','interpreter','latex');
@@ -81,7 +99,11 @@ if plot_figs(1)
             xlabel('$z$','interpreter','latex');
         end
         axis([z(zmini),z(zmaxi),Amin-0.2,Amax+0.2]);
-        title({['$t = ',num2str(t(toutind(ii)+1)),'$']},'interpreter','latex');
+        if nplts ~= 1
+            title({['$t = ',num2str(t(toutind(ii)+1)),'$']},'interpreter','latex');
+        else
+            title({['$t = ',num2str(t(1)),'$']},'interpreter','latex');
+        end
     end
 end
 linkaxes(h,'xy')

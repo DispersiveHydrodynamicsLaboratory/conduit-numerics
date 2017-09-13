@@ -1,4 +1,4 @@
-function [ g0, dg0 ] = triangle_BC_smooth( Ab, zb, toff, tmax )
+function [ g0, dg0 ] = triangle_BC_smooth( Ab, zb, toff, tmax, gap )
 %triangle_BCs generates boundary conditions 
 %   that result in a triangle wave in the conduit
 %   of maximum height Ab and width zb
@@ -11,21 +11,19 @@ function [ g0, dg0 ] = triangle_BC_smooth( Ab, zb, toff, tmax )
     m  = -(Ab - 1)/zb;
     t2 = zb/2;
     tm = -1/(2*m);
-    cap = 0.25;
     
     if t2>tm
-        disp('Breaking occurs before profile finished');
+        disp('Bad things occur before profile finished');
     end
     
 
-     g0 = @(t) ones(size((t-toff)))                      .* ((t-toff)<=0 | (t-toff)>= t2) + ...
-               1./( 1 - 2*((t-toff))/zb )                .* ((t-toff)>0  & (t-toff)<t1-cap) +...
-               Ab*ones(size((t-toff)))                   .* (abs(t-toff-t1)<=cap) +...
-               (zb*m+Ab)./(1+zb*m-2*(t-toff)*m) .* ((t-toff)>t1+cap & (t-toff)<t2); 
+     g0 = @(t) ones(size((t-toff)))                      .* ((t-toff)<= 0-gap  | (t-toff)>= t2+gap) + ...
+               1./( 1 - 2*((t-toff))/zb )                .* ((t-toff)>  0+gap  & (t-toff)<  t1-gap) +...Ab*ones(size((t-toff)))                   .* (abs(t-toff-t1)<=cap) +...
+               (zb*m+Ab)./(1+zb*m-2*(t-toff)*m)          .* ((t-toff)> t1+gap  & (t-toff)<  t2-gap); 
                
-    dg0 = @(t) zeros(size((t-toff)))                            .* ((t-toff)<=0 | (t-toff)>= t2 | abs(t-toff-t1)<=cap) + ...
-               (2/zb)./( 1 - 2*(t-toff)/zb ).^2                 .* ((t-toff)>0  & (t-toff)<t1-cap) +...
-               (-2*m)*(zb*m+Ab)./(1+zb*m-2*(t-toff)*m).^2 .* ((t-toff)>t1+cap & (t-toff)<t2);
+    dg0 = @(t) zeros(size((t-toff)))                            .* ((t-toff)<= 0-gap  | (t-toff)>= t2+gap)+... | abs(t-toff-t1)<=cap) + ...
+               (2/zb)./( 1 - 2*(t-toff)/zb ).^2                 .* ((t-toff)>  0+gap  & (t-toff)<  t1-gap) +...
+               (-2*m)*(zb*m+Ab)./(1+zb*m-2*(t-toff)*m).^2       .* ((t-toff)> t1+gap  & (t-toff)<  t2-gap);
 
 %     tvec = -zb/2:0.01:zb;
 %      g0vec =  g0fun(tvec);

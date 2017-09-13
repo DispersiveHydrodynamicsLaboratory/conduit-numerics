@@ -2,18 +2,18 @@
 % conduit_solver.m
 save_on  = 1;  % Set to nonzero if you want to run the solver, set
                 % to 0 if you want to plot
-periodic = 1; % set to nonzero to run periodic solver (no BCs need)
+periodic = 0; % set to nonzero to run periodic solver (no BCs need)
               % set to 0 to run solver with time-dependent BCs                
-plot_on  = 0;  % Set to 1 if you want to plot just before and just
+plot_on  = 1;  % Set to 1 if you want to plot just before and just
                 % after (possibly) calling the solver          
 check_IC = 0; % Set to nonzero to plot the ICs and BCs without running the solver
 
 %% Numerical Parameters
-tmax     = 50;    % Solver will run from t=0 to t=tmax
-zmax     = 1000;     % Solver will solve on domain z=0 to z=zmax
-numout   = round(tmax);           % Number of output times
+tmax     = 200;    % Solver will run from t=0 to t=tmax
+zmax     = 300;     % Solver will solve on domain z=0 to z=zmax
+numout   = round(2*tmax)+1;           % Number of output times
 t        = linspace(0,tmax,numout);  % Desired output times
-dzinit =  1/10; % Spatial Discretization for most accurate runs
+dzinit   =  1/10; % Spatial Discretization for most accurate runs
                   % With O(h^4), 0.1 gives 10^{-3} max error over t= [0,53]
 Nz       = round(zmax/dzinit);
 if periodic
@@ -24,8 +24,24 @@ end
     h        = 2   ;           % Order of method used     
 
 %% PDE Initial and Boundary Conditions
+Ab   = 2;
+zb   = 50;
+toff = 10;
+
 f = @(z) ones(size(z));
-    ic_type = '';
+[ g0fun, dg0fun ] = triangle_BC_smooth( Ab, zb, toff, tmax, 2.5 );
+tvec  = 0:10^-1:tmax;
+ g0vec =  g0fun(tvec);
+dg0vec = dg0fun(tvec);
+inds = find(isnan(g0vec) | g0vec==0);
+  tvec(inds) = [];
+ g0vec(inds) = [];
+dg0vec(inds) = [];
+ g0 = @(t) interp1(tvec, g0vec,t,'spline',1);
+dg0 = @(t) interp1(tvec,dg0vec,t,'spline',1);
+ g1 = @(t) ones(size(t));
+dg1 = @(t) zeros(size(t));
+    ic_type = ['triangle_Ab_',num2str(Ab),'_zb_',num2str(zb)];
     if periodic
         bc_type = 'periodic';
     else
@@ -33,14 +49,22 @@ f = @(z) ones(size(z));
     end
 
 %% Create directory run will be saved to
-data_dir = ['/Volumes/Data Storage/Numerics/conduit_eqtn/',...
+	if strcmp('MACI64',computer) % If this is a mac
+        leaddir = '/Volumes/Data Storage/Numerics/conduit_eqtn/';
+        endslash = '/';
+    else % It's a Windows!
+        leaddir = 'H:\MATLABdata\data_for_Dalton\';
+        endslash = '\';
+    end
+
+data_dir = [leaddir,...
             '_tmax_',  num2str(round(tmax)),...
             '_zmax_', num2str(round(zmax)),...
             '_Nz_',   num2str(Nz),...
             '_order_',num2str(h),...
             '_init_condns_',ic_type,...
             '_bndry_condns_',bc_type,...
-            '/'];
+            endslash];
 % Create the data directory if necessary
 if ~exist(data_dir,'dir')
     mkdir(data_dir);
@@ -55,7 +79,7 @@ savefile = sprintf('%sparameters.mat',data_dir);
 if save_on
     % Load initial data
       zplot  = dz*[1:Nz];
-      tplot  = linspace(0,tmax,floor(tmax*10));
+      tplot  = linspace(0,tmax,floor(tmax*100));
       A_init = f(zplot);
     if plot_on
         % Plot initial conditions and boundary conditions
@@ -72,7 +96,7 @@ if save_on
             xlabel('t'); ylabel('A(t)'); title('Boundary Conditions');
             legend('At z=0','At z=zmax');
         subplot(3,1,3);
-            plot(tplot,dg0(tplot),tplot,dg1(tplot));
+            plot(tplot,dg0(tplot),'.',tplot,dg1(tplot));
             xlabel('t'); ylabel('A(t)'); title('Derivs of Boundary Conditions');
             legend('At z=0','At z=zmax');
         end
