@@ -8,8 +8,8 @@ save_on  = 1;  % Set to nonzero if you want to run the solver, set
                 % to 0 if you want to plot
 periodic = 0; % set to nonzero to run periodic solver (no BCs need)
               % set to 0 to run solver with time-dependent BCs      
-check_IC = 0; % Set to 1 to only plot ICs
-plot_on  = 0;  % Set to 1 if you want to plot just before and just
+check_IC = 1; % Set to 1 to only plot ICs
+plot_on  = 1;  % Set to 1 if you want to plot just before and just
                % after (possibly) calling the solver
                                 
 %% Numerical Parameters
@@ -134,4 +134,4 @@ end
 if plot_on
     plot_data_fun(data_dir);
 end
-end
+% end
