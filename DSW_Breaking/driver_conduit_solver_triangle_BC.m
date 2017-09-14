@@ -24,8 +24,8 @@ end
     h        = 2   ;           % Order of method used     
 
 %% PDE Initial and Boundary Conditions
-Ab   = 2;
-zb   = 50;
+Ab   = 1.5;
+zb   = 100;
 toff = 10;
 
 f = @(z) ones(size(z));
@@ -126,6 +126,8 @@ end
 
 %% If chosen, plot data associated with the parameters and conditions above
 if plot_on
+    plot_data_fun(data_dir);
+    return;
     disp('Calculating maximum time increment in saved data files...');
     for ii=1:length(t)+1
         [fid,foo] = fopen(strcat(data_dir,num2str(ii,'%05d.mat')),'r');
