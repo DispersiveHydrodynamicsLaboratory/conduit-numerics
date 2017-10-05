@@ -9,8 +9,8 @@ plot_on  = 1;  % Set to 1 if you want to plot just before and just
 check_IC = 1; % Set to nonzero to plot the ICs and BCs without running the solver
 
 %% Numerical Parameters
-tmax     = 200;    % Solver will run from t=0 to t=tmax
-zmax     = 300;     % Solver will solve on domain z=0 to z=zmax
+tmax     = 40;    % Solver will run from t=0 to t=tmax
+zmax     = 100;     % Solver will solve on domain z=0 to z=zmax
 numout   = round(2*tmax)+1;           % Number of output times
 t        = linspace(0,tmax,numout);  % Desired output times
 dzinit   =  1/10; % Spatial Discretization for most accurate runs
@@ -24,21 +24,16 @@ end
     h        = 2   ;           % Order of method used     
 
 %% PDE Initial and Boundary Conditions
-Ab   = 2.5;
-zb   = 100;
-toff = 10;
-
+toffset = 2;
 f = @(z) ones(size(z));
-[ g0fun, dg0fun ] = triangle_BC( Ab, zb, toff, tmax);%, 2.5 );
+Nwave_BC;
 tvec  = 0:10^-1:tmax;
- g0vec =  g0fun(tvec);
-dg0vec = dg0fun(tvec);
-inds = find(isnan(g0vec) | g0vec==0);
-  tvec(inds) = [];
- g0vec(inds) = [];
-dg0vec(inds) = [];
+ g0vec =  areafun(tvec-toffset);
+    inds = find(isnan(g0vec) | g0vec==0);
+      tvec(inds) = [];
+     g0vec(inds) = [];
  g0 = @(t) interp1(tvec, g0vec,t,'spline',1);
-dg0 = @(t) interp1(tvec,dg0vec,t,'spline',1);
+dg0 = @(t) interp1(tvec(1:end-1),diff(g0vec)/0.1,t,'spline',1);
  g1 = @(t) ones(size(t));
 dg1 = @(t) zeros(size(t));
     ic_type = ['triangle_Ab_',num2str(Ab),'_zb_',num2str(zb)];
