@@ -1,16 +1,16 @@
 % Driver script for running the conduit equation solver
 % conduit_solver.m
 % Edited on 2017/07/12 by MM & NF
-save_on  = 0;  % Set to nonzero if you want to run the solver, set
+save_on  = 1;  % Set to nonzero if you want to run the solver, set
                 % to 0 if you want to plot
 periodic = 1; % set to nonzero to run periodic solver (no BCs need)
               % set to 0 to run solver with time-dependent BCs                
 plot_on  = 1;  % Set to 1 if you want to plot just before and just
                 % after (possibly) calling the solver          
-check_IC = 0; % Set to nonzero to plot the ICs and BCs without running the solver
+check_IC = 1; % Set to nonzero to plot the ICs and BCs without running the solver
 
-amaxes = 1:1:4;
-ws = 100:100:400;
+amaxes = 2;%1:1:4;
+ws = 100;%100:100:400;
 
 [AMAXES WS] = meshgrid(amaxes,ws);
 
@@ -22,7 +22,7 @@ for ii = 1:numel(AMAXES);
 Amax     = AMAXES(ii);     % Height of the box
 w        = WS(ii);   % Width of the box
 v        = 5*Amax;     % Edges of the box (how smooth the edges are) Possible Radiation Reducer
-tmax     = 500;    % Solver will run from t=0 to t=tmax
+tmax     = 100;    % Solver will run from t=0 to t=tmax
 % zmax     = 500*Amax;     % Solver will solve on domain z=0 to z=zmax
 
 numout   = round(tmax);           % Number of output times
@@ -31,8 +31,8 @@ t        = linspace(0,tmax,numout);  % Desired output times
         zmax = 500*Amax;
         dzinit = 1/3;
     else
-        zmax     = 1000*Amax;     % Solver will solve on domain z=0 to z=zmax
-        dzinit =  1/10; % Spatial Discretization for most accurate runs
+        zmax     = 1000;     % Solver will solve on domain z=0 to z=zmax
+        dzinit =  1/4; % Spatial Discretization for most accurate runs
                       % With O(h^4), 0.1 gives 10^{-3} max error over t= [0,53]
     end
 z0       = zmax/2;   % Center of the box
@@ -56,7 +56,7 @@ f = @(z) ones(size(z)) + f(z) .* (f(z)>10^(-4));
     end
 
 %% Create directory run will be saved to
-data_dir = ['/Volumes/APPM-DHL/data/conduit_eqtn/',...
+data_dir = ['/Volumes/Data Storage/data/conduit_eqtn/',...
             '_tmax_',  num2str(round(tmax)),...
             '_zmax_', num2str(round(zmax)),...
             '_Nz_',   num2str(Nz),...

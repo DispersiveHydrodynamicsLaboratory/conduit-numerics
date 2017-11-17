@@ -10,7 +10,7 @@ m = (ab - AB)/w;
 
 t1 = (AB-1)*zb/(2*AB);
 t2 = (w-(1-ab)*zb)/(2*ab);
-t3 = w/(2) ;
+t3 = w/(2);
 tb = zb/2;
 wcheck = (ab/AB)*(AB-zb+2*AB*zb);
 
