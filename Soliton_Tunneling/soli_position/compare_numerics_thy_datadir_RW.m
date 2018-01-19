@@ -7,11 +7,6 @@ wfac  = 2;
 wplot = 8.5*wfac;
 hplot = 5.25*wfac;
 
-% data_dir = '/Volumes/APPM-DHL/data/conduit_eqtn/_tmax_200_zmax_600_Nz_6000_order_4_init_condns_soli_tunneling_Amax_1.5_asoli_3_hstretch_2_wave_type_r_bndry_condns_time_dependent/';
-% data_dir = '/Volumes/APPM-DHL/data/conduit_eqtn/_tmax_400_zmax_1200_Nz_12000_order_4_init_condns_soli_tunneling_Amax_1.5_asoli_3_hstretch_2_wave_type_r_bndry_condns_time_dependent/';
-% data_dir = '/Volumes/APPM-DHL/data/conduit_eqtn/_tmax_400_zmax_1200_Nz_12000_order_4_init_condns_soli_tunneling_Amax_1.5_asoli_3_hstretch_2_wave_type_r_bndry_condns_time_dependent/';
-% data_dirRW = '/Volumes/APPM-DHL/data/conduit_eqtn/_tmax_400_zmax_1200_Nz_12000_order_4_init_condns_RW_Amax_1.5_hstretch_1_wave_type_r_bndry_condns_time_dependent/';
-% data_dir = '/Volumes/APPM-DHL/data/conduit_eqtn/_tmax_700_zmax_2500_Nz_10000_order_4_init_condns_soli_tunneling_Amax_1.5_asoli_3_hstretch_1_wave_type_r_bndry_condns_time_dependent/';
 if trapping
     data_dir = '/Volumes/APPM-DHL/data/conduit_eqtn/_tmax_250_zmax_1000_Nz_4000_order_4_init_condns_soli_tunneling_Amax_2_asoli_2_hstretch_5_wave_type_r_bndry_condns_time_dependent/';
 else
@@ -70,8 +65,12 @@ f1 = figure(1); clf;
     set(gca,'FontSize',9)
     if trapping
         savePlot(f1,'soli_RW_contour_trapping',wplot,hplot,'-dpdf','');
+        delete(f1);clear('f1');
+                save('soli_RW_trapping.mat');
     else
         savePlot(f1,'soli_RW_contour_tunneling',wplot,hplot,'-dpdf','');
+        delete(f1);clear('f1');
+                save('soli_RW_tunneling.mat');
     end
 return;
 % Compare RW to theoretical and numerical options

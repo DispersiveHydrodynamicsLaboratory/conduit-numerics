@@ -2,15 +2,15 @@
 % conduit_solver.m
 save_on  = 1;  % Set to nonzero if you want to run the solver, set
                 % to 0 if you want to plot
-periodic = 1; % set to nonzero to run periodic solver (no BCs need)
+periodic = 0; % set to nonzero to run periodic solver (no BCs need)
               % set to 0 to run solver with time-dependent BCs                
-plot_on  = 1;  % Set to 1 if you want to plot just before and just
+plot_on  = 0;  % Set to 1 if you want to plot just before and just
                 % after (possibly) calling the solver          
-check_IC = 1; % Set to nonzero to plot the ICs and BCs without running the solver
+check_IC = 0; % Set to nonzero to plot the ICs and BCs without running the solver
 
 %% Numerical Parameters
-tmax     = 2000;    % Solver will run from t=0 to t=tmax
-zmax     = 7000;     % Solver will solve on domain z=0 to z=zmax
+tmax     = 700;    % Solver will run from t=0 to t=tmax
+zmax     = 6500;     % Solver will solve on domain z=0 to z=zmax
 numout   = round(tmax);           % Number of output times
 t        = linspace(0,tmax,numout);  % Desired output times
 dzinit =  1/3; % Spatial Discretization for most accurate runs
@@ -24,14 +24,20 @@ end
     h        = 2   ;           % Order of method used     
 
 %% PDE Initial and Boundary Conditions
-z0soli = 50; z0RW = 700;
-ARW = 1.5; vs = (ARW-1)/2; hs = 100;
-asoli  = 9;
+z0soli = 50; z0RW = 275; z0bump = z0RW;
+ARW = 1.25; vs = (ARW-1)/2; hsRW = 50;
+Abump = ARW + 1; hsbump = 300;
+asoli  = 13;
 [ zsoli,psoli ] = conduit_soliton_newton_cg( asoli, zmax, 0 );
 zsoli = zsoli + z0soli;
 fsoli = @(z) interp1(zsoli,psoli,z,'spline',0);
-RW       = @(z) (1+vs) + vs*tanh(1/hs*(z-z0RW));
-f = @(z) fsoli(z) + RW(z) + (ARW+1)*sech(1/(1*hs)*(z-z0RW));
+RW       = @(z) (1+vs) + vs*tanh(1/hsRW*(z-z0RW));
+% hump     = @(z) (ARW+1)*sech(1/(1*hs)*(z-z0sech));
+zbump   = ((-hsbump/2+1/25):1/25:hsbump/2) + z0bump;
+sinbump =  Abump*(0.5+0.5*(sin(linspace(-pi/2,pi*3/2,25*hsbump))));
+bump = @(z) interp1(zbump,sinbump,z,'spline',0);
+f = @(z) fsoli(z) + RW(z) + bump(z);
+
  g0 = @(t) ones(size(t));
 dg0 = @(t) zeros(size(t));
  g1 = @(t) ARW*ones(size(t));
@@ -159,3 +165,6 @@ if plot_on
     end
 
 end
+plot_data_fun(data_dir);
+print('exm','-dpng','-r600')
+send_mail_message('mdmaide2','Matlab is finished!','Your sims are done!','exm.png')

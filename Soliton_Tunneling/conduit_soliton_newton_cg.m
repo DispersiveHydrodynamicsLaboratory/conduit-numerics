@@ -13,7 +13,7 @@ end
 %%%%% You can change things here %%%%%%%
 % Amplitude deviation from unity (now an input for the function)
 % Set up Fourier grid
-N = 2^16; % Increase the exponent to get better accuracy
+N = 2^18; % Increase the exponent to get better accuracy
           % Decrease the exponent to get faster code
 % L = 100;  % This code will compute a soliton on the domain [-L, L].
 %%%%%%% END CHANGING THINGS %%%%%%%%%%%%%%%

@@ -1,7 +1,7 @@
 % Compare theory to exp't
 reformat_on = 1; %reformat numerics into matrix; only needs to be done once per trial
 wave_type = 'd';
-trapping  = 1; trap_lines = 0;
+trapping  = 0; trap_lines = 0;
 % Plotting parameters
 wfac  = 2;
 wplot = 8.5*wfac;
@@ -87,6 +87,10 @@ f1 = figure(1); clf;
     set(gca,'FontSize',9)
     if trapping
         savePlot(f1,'soli_DSW_contour_trapping',wplot,hplot,'-dpdf','');
+        delete(f1); clear('f1');
+        save('soli_DSW_trapping.mat');
     else
         savePlot(f1,'soli_DSW_contour_tunneling',wplot,hplot,'-dpdf','');
+        delete(f1); clear('f1');
+        save('soli_DSW_tunneling.mat');
     end
