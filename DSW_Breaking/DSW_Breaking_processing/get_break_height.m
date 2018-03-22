@@ -2,10 +2,12 @@ save_on = 1; % 1 = run data processing, 0 = just plot
 reformat = 0; % set to 1 to reformat numerics files as .mat files 
               % only needs to be done once (when new trials are added)
 plot_debug_on = 0; % Doesn't plot or show output during processing if off
-main_dir = '/Users/appm_admin/Documents/MATLAB/conduit_numerics_backup/DSW_runs/data_for_Dalton/';
+main_dir = '/Volumes/Data Storage/Numerics/conduit_eqtn/DSW_Breaking/';
 % Inputs: jump ratios and break heights (non-dimensional)
-Abacks = [2:0.5:4];
-z0_opts = [93.4079 125.3071 164.6100];
+load('fig_quants.mat');
+Abacks = 2:0.5:4;
+z0_opts = [in([1 6 11]).zb_fitND];
+
 Afront  = ones(size(Abacks));
 if save_on
     % set_quantities;
@@ -37,10 +39,10 @@ if save_on
             zmax     = z0+100;    % Solver will solve on domain z=0 to z=zmax
             numout   = round(tmax)*4+1;     % Number of output times
             t        = linspace(0,tmax,numout);  % Desired output times
-            dzinit   = 1/250;    % Set to 1/500 for optimum
+            dzinit   = 1/100;    % Set to 1/500 for optimum
             Nz       = round(zmax/dzinit); % Works on its own
 
-            data_dir = [main_dir,'conduit_eqtn',...
+            data_dir = [main_dir,'/data_for_Dalton/conduit_eqtn',...
                        '_tmax_',  num2str(round(tmax)),...
                        '_zmax_', num2str(round(zmax)),...
                        '_Nz_',   num2str(Nz),...
@@ -114,14 +116,14 @@ end
     
 % Plot Comparison
     t0fun = @(Aback,z0_opts) z0_opts./(2*Aback);
-    Abackvec = 2:0.05:4;
+    Abackvec = 2:0.5:4;
     plot_t0_vec = [];
     for ii = 1:length(z0_opts)
         plot_t0_vec = [plot_t0_vec; t0fun(Abackvec,z0_opts(ii))];
     end
     
     figure(4); clf; 
-        h = plot(all_Abacks',all_t0s_out','-*',repmat(Abackvec,5,1)',plot_t0_vec','--');
+        h = plot(all_Abacks',all_t0s_out','-*',repmat(Abackvec,length(z0_opts),1)',plot_t0_vec','--');
         set(gca,'FontSize',14,'FontName','times');
         for ii = 1:nn
             set(h(ii+nn),'Color',get(h(ii),'Color'));

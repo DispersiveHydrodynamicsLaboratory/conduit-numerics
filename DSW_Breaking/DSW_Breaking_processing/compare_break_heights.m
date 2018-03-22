@@ -1,5 +1,7 @@
 %% Load Numerics Results
-main_dir = '/Users/appm_admin/Documents/MATLAB/conduit_numerics_backup/DSW_runs/data_for_Dalton/';
+% main_dir = '/Users/appm_admin/Documents/MATLAB/conduit_numerics_backup/DSW_runs/data_for_Dalton/';
+main_dir = '/Volumes/Data Storage/Numerics/conduit_eqtn/DSW_Breaking/';
+
 load([main_dir,'processed_data.mat'],'all_z0s_in','all_z0s_out','all_t0s_in','all_t0s_out','z0_opts','Abacks');%'all_Aminus','all_breaktimes','all_breakheights',
 
 Aback = Abacks;
@@ -30,32 +32,38 @@ all_breakheights = all_z0s_in;
     legend(leg);
     
 %% Send data to 'dimensional' space
-load('/Users/appm_admin/Documents/MATLAB/Dalton/2017_04_01_Dalton_WaveBreaking/quantities.mat','T0fac','U0fac','L0fac','alpha','epsilon');
-% load('/Volumes/Data Storage/Experiments/data_processing/2016_05_17_Dalton_Glycerol/RESULTS.mat','alpham');
-alpham = alpha;
-Q0 = [0.25]; % mL/min
-D0 = alpham*Q0.^(1/4);
+load('/Users/appm_admin/Documents/MATLAB/conduit_numerics/DSW_Breaking/DSW_Breaking_processing/fit_params.mat')
+load('/Users/appm_admin/Documents/MATLAB/conduit_numerics/DSW_Breaking/DSW_Breaking_processing/fig_quants.mat')
+alpham = alpha_fit;
+Q0 = 0.25; % mL/min
+% D0 = R0_fit*2;
 % %    R = L0fac*Diam * R_nd
 % %    Z = L0fac*Diam/epsilon^0.5 * Z_nd
-    L0 =  0.157363848283770; %found experimentally
+%     L0old =  0.157363848283770; %found experimentally
+    L0 =  Lfit/sqrt(epsilon_fit);
+%     disp(['L0old: ',num2str(L0old),' L0: ',num2str(L0)]);
 % %    vel = U0fac*Diam^2 * vel_nd
-    U0 =  0.080776104456255; %found experimentally
+%     U0old =  0.080776104456255; %found experimentally
+    U0 = Ufit;
+%     disp(['U0old: ',num2str(U0old),' U0: ',num2str(U0)]);
 % %     t = T0fac/Diam/epsilon^0.5 * t_nd
-    T0 = 1.950756251929821; %found experimentally
+    T0 = Tfit/sqrt(epsilon_fit);
 
-% Convert to set_quantitites values
-    %% Check 'dimensionality'
-    a = load('/Users/appm_admin/Documents/MATLAB/conduit_numerics_backup/DSW_runs/data_for_Dalton/conduit_eqtn_tmax_150_zmax_193_Nz_48352_order_4_init_condns_constant_fun_bndry_condns_time_dependent_DSW_Aplus_2_Aminus_1_z0_93.4079/conduit_edges.mat');
-    b = load('/Users/appm_admin/Documents/MATLAB/conduit_numerics_backup/DSW_runs/data_for_Dalton/conduit_eqtn_tmax_150_zmax_193_Nz_48352_order_4_init_condns_constant_fun_bndry_condns_time_dependent_DSW_Aplus_2_Aminus_1_z0_93.4079/parameters.mat');
-    zold = b.dz:b.dz:b.zmax-b.dz;
-    znew = linspace(b.dz,b.zmax-1,300);
-    [Zold,Told] = meshgrid(zold,b.t);
-    [Znew,Tnew] = meshgrid(znew,b.t);
-    Zold = Zold*L0;
-    Znew = Znew*L0;
-    Told = Told*T0;
-    Tnew = Tnew*T0;
-    A    = interp2(Zold,Told,a.area_mat,Znew,Tnew);
+
+
+%% % Convert to set_quantitites values
+     %% Check 'dimensionality'
+%     a = load('/Users/appm_admin/Documents/MATLAB/conduit_numerics_backup/DSW_runs/data_for_Dalton/conduit_eqtn_tmax_150_zmax_193_Nz_48352_order_4_init_condns_constant_fun_bndry_condns_time_dependent_DSW_Aplus_2_Aminus_1_z0_93.4079/conduit_edges.mat');
+%     b = load('/Users/appm_admin/Documents/MATLAB/conduit_numerics_backup/DSW_runs/data_for_Dalton/conduit_eqtn_tmax_150_zmax_193_Nz_48352_order_4_init_condns_constant_fun_bndry_condns_time_dependent_DSW_Aplus_2_Aminus_1_z0_93.4079/parameters.mat');
+%     zold = b.dz:b.dz:b.zmax-b.dz;
+%     znew = linspace(b.dz,b.zmax-1,300);
+%     [Zold,Told] = meshgrid(zold,b.t);
+%     [Znew,Tnew] = meshgrid(znew,b.t);
+%     Zold = Zold*L0;
+%     Znew = Znew*L0;
+%     Told = Told*T0;
+%     Tnew = Tnew*T0;
+%     A    = interp2(Zold,Told,a.area_mat,Znew,Tnew);
 %     figure(1); clf;
 %     contourf(Znew,Tnew,A,'edgecolor','none');
 %             cmap = load('CoolWarmFloat257.csv');
@@ -63,20 +71,21 @@ D0 = alpham*Q0.^(1/4);
 %             xlabel('z'); ylabel('t');
 %             hold on;
 %             plot([20 20]*L0,[0,max(b.t)]/T0);
-            
-    % Convert to Dimensional Quantities
+        nn = length(z0_opts);
+        A0 = repmat([Abacks],nn,1);
+
+
+    %% Convert to Dimensional Quantities
         z0_opts_25        = z0_opts*L0;
         z0_expects_dim_25 = all_z0s_in*L0;
         z0_actuals_dim_25 = all_z0s_out*L0;
 %         t0_opts_25        = t0_opts*T0;
-        t0_expects_dim_25 = all_t0s_in*T0;
-        t0_actuals_dim_25 = all_t0s_out*T0;
+        t0_expects_dim_25 = all_t0s_in*T0.*A0;
+        t0_actuals_dim_25 = all_t0s_out*T0.*A0;
 
 %% FLOW RATE 0.25 
 % Breaking Height Comparison
 % Initialize break height lines to compare to
-    nn = length(z0_opts_25);
-    A0 = repmat([Abacks],nn,1);
     % Commands to generate legend
         zb = [];
         leg = [];
@@ -114,12 +123,12 @@ D0 = alpham*Q0.^(1/4);
     xlabel('Jump Height (ND)'); ylabel('Breaking Time (s)'); title('Numerical DSWs (Dim, Q0=0.25mL/min)')
     legend(leg);
     
-% Save to compare with experiments
+%% Save to compare with experiments
 save('numerical_results.mat','z0_expects_dim_25','z0_actuals_dim_25',...
                              't0_expects_dim_25','t0_actuals_dim_25',...
                               'A0');
                           
-save('/Users/appm_admin/Documents/MATLAB/Dalton/2017_04_01_Dalton_WaveBreaking/Processing/numerical_results.mat',...
+save('/Volumes/Data Storage/2018_02_23_DSW_Breaking/Processing_Get_Breaking/numerical_results.mat',...
             'z0_expects_dim_25','z0_actuals_dim_25',...
             't0_expects_dim_25','t0_actuals_dim_25',...
             'A0');

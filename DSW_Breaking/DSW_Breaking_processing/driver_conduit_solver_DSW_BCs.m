@@ -10,19 +10,17 @@ check_IC = 0; % Set to 1 to ONLY plot ICs (and BCs, if applicable)
 plot_on  = 1;  % Set to 1 if you want to plot just before and just
                 % after (possibly) calling the solver
 
-% Directory where data is presently saved                
-main_dir = '/Users/appm_admin/Documents/MATLAB/conduit_numerics_backup/DSW_runs';
+% Directory where data is presently saved   
+main_dir = '/Volumes/Data Storage/Numerics/conduit_eqtn/DSW_Breaking';
+load('fig_quants.mat');
+Aplus_opts = 2:0.5:4;
+z0_opts = [in([1 6 11]).zb_fitND];
+[AP,Z0] = meshgrid(Aplus_opts,z0_opts);
 
-Aplus_opts = [4];
-z0_opts = [93.4079 125.3071 164.6100];
-DSW_opts = 1:(length(Aplus_opts)*length(z0_opts));
+DSW_opts = 1:numel(AP);
 for ii = DSW_opts
-    Aplus = Aplus_opts(ceil(ii/5));
-    zind = mod(ii,3);
-    if zind==0
-        zind = 3;
-    end
-    z0 = z0_opts(zind);
+    Aplus = AP(ii);
+    z0    = Z0(ii);
         t0 = z0/(2*Aplus);
         if Aplus>=4
             toffset = 10;
@@ -34,7 +32,7 @@ for ii = DSW_opts
     zmax     = z0+100;    % Solver will solve on domain z=0 to z=zmax
     numout   = round(tmax)*4+1;     % Number of output times
     t        = linspace(0,tmax,numout);  % Desired output times
-    dzinit   = 1/250;    % Set to 1/500 for optimum
+    dzinit   = 1/100;    % Set to 1/500 for optimum
     Nz       = round(zmax/dzinit); % Works on its own
     h        = 4;      % Order of the scheme; can use 2 or 4
 
@@ -81,6 +79,7 @@ disp(data_dir);
 if ~exist(data_dir,'dir')
     mkdir(data_dir);
 else
+    continue;
     disp(['Warning, directory ',data_dir]);
     disp('already exists, possibly overwriting data');
 %     input('Return to continue. Cancel to not');
@@ -131,9 +130,9 @@ else
     load(savefile);
 end
 
-if plot_on
-    plot_data_fun(data_dir,4,6,floor((toffset)*5*t0),floor((toffset-2)*5*t0));
-end
+% if plot_on
+%     plot_data_fun(data_dir,4,6,floor((toffset)*5*t0),floor((toffset-2)*5*t0));
+% end
 
 end
 

@@ -169,11 +169,11 @@ function[Abreak] = find_breaking(A,z,t,Aback,Afront,z0,t0,toffset,plot_slopes_on
 
         %% Determine breaking height based on data at breaking time
         % look ahead of peak
-            [peak , locp] = findpeaks(flipud(Abreaktime),z,'MinPeakProminence',0.1,'SortStr','none','NPeaks',1);
-            if ~is_numerics % experiment is backwards
+            [peak , locp] = findpeaks(fliplr(Abreaktime),z,'MinPeakProminence',0.1,'SortStr','none','NPeaks',1);
+%             if ~is_numerics % experiment is backwards
                 locp = zmin+zmax-locp;
-            end
-        breakarea = (peak+1)/2;
+%             end
+        breakarea = Aback;%(peak+1)/2;
         Abreak.height = fzero(@(z) Ab(z)-breakarea,[locp max(z)]);
         
         
