@@ -1,0 +1,22 @@
+num_dir = '/Users/appm_admin/Documents/MATLAB/conduit_numerics/DSW_Breaking/DSW_Breaking_processing/';
+load([num_dir,'fig_quants.mat']);
+load([num_dir,'fit_params.mat']);
+load([num_dir,'numerical_results.mat']);
+
+%% Sol
+
+
+%
+figure(1); clf;
+    plot(A0',z0_actuals_dim_25','o',...
+        [dsw.A0],[out.zb],'x',...
+        [dsw.A0],[dsw.zb_fit],'p',...
+        [dsw.A0],[dsw.zb],'<');
+    
+    
+figure(2); clf;
+    plot(A0',t0_actuals_dim_25','o',...
+        [dsw.A0],[out.tb],'x',...
+        [dsw.A0],[dsw.tb_fit],'p',...
+        [dsw.A0],[dsw.tb],'<');
+    
